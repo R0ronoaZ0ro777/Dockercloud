@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Juguetes</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    
+    <h1>{% if juguete%}Editar{% else %}Crear{% endif %} Juguete</h1>
+
+    <form method ="post">
+        {% csrf_token %}
+        <label>Nombre:</label>
+        <!-- |default hace que si el juguete no tiene un nombre se muestre un campo vacio en lugar de 'None' -->
+        <input type="text" name="nombre" value="{{ juguete.nombre|default:'' }}" required>
+        
+        <label>Precio:</label>
+        <!-- step="0.01" hace que el campo acepte decimales con dos cifras -->
+        <input type="number" step="0.01" name="precio" value="{{ juguete.precio|default:'' }}" required>
+        
+        <label>Stock:</label>
+        <input type="number" name="stock" value="{{ juguete.stock|default:'' }}" required>
+        
+        <label>Descripción:</label>
+        <textarea name="descripcion">{{ juguete.descripcion|default:'' }}</textarea>
+        
+        <button type="submit">Guardar</button>
+        <a href="/juguetes/">Cancelar</a>
+    </form>
+</body>
+</html>

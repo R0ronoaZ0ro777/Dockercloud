@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario de Juguetes</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    
+    <h1>Inventario de Juguetes</h1>
+    <div>
+        <h2>Procesamiento Asincrono(celery + Redis)</h2>
+
+        <button class="async-btn" onclick="generarReporte()">Generar Reporte de Inventario</button>
+
+        <button class="async-btn" onclick="enviarAlerta()">Enviar Alerta de Stock Bajo</button>
+        <div id="resultado"></div>
+    </div>
+
+    <h2> Catalogo de Juguetes</h2>
+    <a href="/juguetes/crear/" class="crud-btn"> Agregar Juguete</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for juguete in juguetes %}
+            <tr>
+                <td>{{ juguete.id }}</td>
+                <td>{{ juguete.nombre }}</td>
+                <td>{{ juguete.precio }}</td>
+                <td>{{ juguete.stock }}</td>
+                <td>
+                    <a href="/juguetes/{{ juguete.id }}/">Ver Detalles</a>
+                    <a href="/juguetes/{{ juguete.id }}/editar/">Editar</a>
+                    <a href="/juguetes/{{ juguete.id }}/eliminar/">Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan = "5"> No hay juguetes registrados</td></tr><!-- esto se muestra si la lista de juguetes esta vacia -->
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+<script>
+    /*funcion para generar el reporte de inventario de forma asincronica*/
+    async function generarReporte() {
+            document.getElementById('resultado').innerHTML = '<p>📋 Generando reporte... Esto puede tomar 10 segundos, pero la página NO se bloquea</p>';
+            const response = await fetch('/juguetes/reporte-inventario/');
+            const data = await response.json();
+            document.getElementById('resultado').innerHTML = `
+                <div class="success">
+                    Tarea enviada al worker!<br>
+                    Task ID: ${data.task_id}<br>
+                    Estado: ${data.estado}<br>
+                    El worker procesará esto en segundo plano. ¡Puedes seguir usando la página!
+                </div>
+            `;
+        }
+        /*funcion para enviar alertas de stock bajo de forma asincronica*/
+        async function enviarAlerta() {
+            document.getElementById('resultado').innerHTML = '<p>🚨 Enviando alertas... La página NO se bloquea</p>';
+            const response = await fetch('/juguetes/alerta-stock/');
+            const data = await response.json();
+            document.getElementById('resultado').innerHTML = `
+                <div class="success">
+                    Alertas encoladas!<br>
+                    Task ID: ${data.task_id}<br>
+                    Estado: ${data.estado}<br>
+                    El worker procesará esto en segundo plano
+                </div>
+            `;
+        }
+</script>
+</html>

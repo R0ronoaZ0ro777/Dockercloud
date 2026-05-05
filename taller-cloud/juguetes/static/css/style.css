@@ -1,0 +1,179 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Fondo general */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #0d0d0d;
+    color: #e0e0e0;
+    padding: 20px;
+}
+
+/* Títulos */
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+/* Botones */
+button, .crud-btn, .async-btn {
+    background-color: #111;
+    color: #00bfff;
+    border: 1px solid #00bfff;
+    padding: 10px 15px;
+    margin: 5px 0;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+button:hover, .crud-btn:hover, .async-btn:hover {
+    background-color: #00bfff;
+    color: #000;
+}
+
+/* Tabla */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #111;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background-color: #1a1a1a;
+    color: #00bfff;
+}
+
+tr:nth-child(even) {
+    background-color: #151515;
+}
+
+tr:hover {
+    background-color: #1f1f1f;
+}
+
+/* Links */
+a {
+    color: #00bfff;
+    text-decoration: none;
+    margin: 0 5px;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Card (detalle) */
+.card {
+    max-width: 500px;
+    margin: auto;
+    background-color: #111;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,191,255,0.2);
+}
+
+/* Formulario */
+form {
+    max-width: 500px;
+    margin: auto;
+    background-color: #111;
+    padding: 25px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Labels */
+label {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #aaa;
+}
+
+/* Inputs */
+input, textarea {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    padding: 10px;
+    border-radius: 8px;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+/* Animación al enfocar */
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #00bfff;
+    box-shadow: 0 0 8px #00bfff;
+}
+
+/* Resultado async */
+#resultado {
+    margin-top: 15px;
+}
+
+/* Mensajes */
+.success {
+    background-color: #002b36;
+    border-left: 4px solid #00bfff;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    th {
+        display: none;
+    }
+
+    tr {
+        margin-bottom: 10px;
+        background: #111;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    td {
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    td::before {
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        color: #00bfff;
+        font-weight: bold;
+    }
+
+    td:nth-child(1)::before { content: "ID"; }
+    td:nth-child(2)::before { content: "Nombre"; }
+    td:nth-child(3)::before { content: "Precio"; }
+    td:nth-child(4)::before { content: "Stock"; }
+    td:nth-child(5)::before { content: "Acciones"; }
+}

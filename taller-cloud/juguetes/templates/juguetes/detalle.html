@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ juguete.nombre }}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="card">
+        <h1>{{ juguete.nombre }}</h1>
+        <p><strong>Precio:</strong> ${{ juguete.precio }}</p>
+        <p><strong>Stock:</strong> {{ juguete.stock }} unidades</p>
+        <p><strong>Descripción:</strong> {{ juguete.descripcion }}</p>
+
+        <button class="async-btn" onclick="comprar()">Comprar (Procesamiento Asíncrono)</button>
+        <div id="resultado"></div>
+
+        <p><a href="/juguetes/">← Volver al catalogo</a></p>
+    </div>
+</body>
+<script>
+    async function comprar() {
+        document.getElementById('resultado').innerHTML = '<p>Procesando compra... Esto puede tomar 15 segundos, pero la página NO se bloquea</p>';
+        
+        const jugueteId = parseInt('{{ juguete.id }}');
+        
+        const response = await fetch('/juguetes/procesar-compra/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                juguete_id: jugueteId,
+                cantidad: 1,
+                cliente_email: 'cliente@example.com'
+            })
+        });
+        
+        const data = await response.json();
+        document.getElementById('resultado').innerHTML = `
+            <div style="background: #4CAF50; color: white; padding: 10px; margin-top: 10px;">
+                LISTO: ${data.mensaje}<br>
+                Tu compra esta siendo procesada en segundo plano.<br>
+                Recibiras confirmacion por email.
+            </div>
+        `;
+    }
+</script>
+</html>
