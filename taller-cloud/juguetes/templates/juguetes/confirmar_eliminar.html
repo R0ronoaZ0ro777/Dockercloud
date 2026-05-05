@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Eliminación</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Confirmar Eliminación</h1>
+            
+            <p>¿Estás seguro de que deseas eliminar el siguiente juguete?</p>
+            
+            <div style="background-color: #333333; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #f39c12;">
+                <p><strong>Nombre:</strong> {{ juguete.nombre }}</p>
+                <p><strong>Precio:</strong> ${{ juguete.precio }}</p>
+                <p><strong>Stock:</strong> {{ juguete.stock }} unidades</p>
+            </div>
+
+            <p style="color: #e74c3c; font-weight: bold;">⚠️ Esta acción NO se puede deshacer.</p>
+
+            <form method="post" style="display: flex; gap: 10px; justify-content: center; margin-top: 30px;">
+                {% csrf_token %}
+                
+                <button type="submit" class="danger" style="flex: 1;">🗑️ Sí, Eliminar</button>
+                <a href="/juguetes/{{ juguete.id }}/" style="flex: 1; display: flex; align-items: center; justify-content: center; background-color: var(--color-primary); color: white; text-decoration: none; border-radius: 5px; font-weight: 600;">❌ Cancelar</a>
+            </form>
+
+            <a href="/juguetes/" class="back-link">← Volver al catálogo</a>
+        </div>
+    </div>
+</body>
+</html>
