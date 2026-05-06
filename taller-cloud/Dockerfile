@@ -6,5 +6,8 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
+# Recolecta estáticos
+RUN python manage.py collectstatic --noinput --clear
+
 EXPOSE 8000
-CMD ["sh", "-c", "python manage.py runserver 0.0.0.0:8000"]
+CMD ["sh", "-c", "gunicorn proyecto.wsgi:application --bind 0.0.0.0:8000"]

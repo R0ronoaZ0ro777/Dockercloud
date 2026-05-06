@@ -1,11 +1,141 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario de Juguetes</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        h2 {
+            margin-top: 30px;
+        }
+
+        button, .async-btn, .crud-btn {
+            background-color: #111;
+            color: #00bfff;
+            border: 1px solid #00bfff;
+            padding: 10px 15px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button:hover, .async-btn:hover, .crud-btn:hover {
+            background-color: #00bfff;
+            color: #000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #111;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #1a1a1a;
+            color: #00bfff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #151515;
+        }
+
+        tr:hover {
+            background-color: #1f1f1f;
+        }
+
+        a {
+            color: #00bfff;
+            text-decoration: none;
+            margin: 0 5px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        #resultado {
+            margin-top: 15px;
+        }
+
+        .success {
+            background-color: #002b36;
+            border-left: 4px solid #00bfff;
+            padding: 10px;
+            border-radius: 8px;
+            color: #ffffff;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            th {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 10px;
+                background: #111;
+                padding: 10px;
+                border-radius: 8px;
+            }
+
+            td {
+                text-align: right;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            td::before {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                color: #00bfff;
+                font-weight: bold;
+            }
+
+            td:nth-child(1)::before { content: "ID"; }
+            td:nth-child(2)::before { content: "Nombre"; }
+            td:nth-child(3)::before { content: "Precio"; }
+            td:nth-child(4)::before { content: "Stock"; }
+            td:nth-child(5)::before { content: "Acciones"; }
+        }
+    </style>
 </head>
 <body>
     

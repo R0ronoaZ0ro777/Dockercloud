@@ -12,6 +12,7 @@ urlpatterns = [
     #vistas asincronas (Celery)
     path('reporte-inventario/', views.reporte_inventario_asinc, name='reporte_inventario'),
     path('alerta-stock/', views.alerta_stock_asinc, name='alerta_stock'),
-    path('procesar-compra/', views.procesar_compra_asinc, name='procesar_compra'),
+    path('procesar-compra/', views.procesar_compra, name='procesar_compra'),  # SÍNCRONA - actualiza inmediatamente
+    path('procesar-compra-asinc/', views.procesar_compra_asinc, name='procesar_compra_asinc'),  # ASINCRÓNA
     path('estado-tarea/<str:task_id>/', views.verificar_estado_tarea, name='estado_tarea'),
 ]

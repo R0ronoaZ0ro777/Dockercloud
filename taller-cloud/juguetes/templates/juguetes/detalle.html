@@ -1,11 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ juguete.nombre }}</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: auto;
+            background-color: #111;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,191,255,0.2);
+        }
+
+        .card p {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .card strong {
+            color: #00bfff;
+        }
+
+        a {
+            color: #00bfff;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background-color: #111;
+            color: #00bfff;
+            border: 1px solid #00bfff;
+            padding: 10px 15px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button:hover {
+            background-color: #00bfff;
+            color: #000;
+        }
+
+        #resultado {
+            margin-top: 15px;
+        }
+
+        .success {
+            background-color: #002b36;
+            border-left: 4px solid #00bfff;
+            padding: 10px;
+            border-radius: 8px;
+            color: #ffffff;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="card">
@@ -14,7 +101,7 @@
         <p><strong>Stock:</strong> {{ juguete.stock }} unidades</p>
         <p><strong>Descripción:</strong> {{ juguete.descripcion }}</p>
 
-        <button class="async-btn" onclick="comprar()">Comprar (Procesamiento Asíncrono)</button>
+        <button class="async-btn" onclick="comprar()">🛒 Comprar</button>
         <div id="resultado"></div>
 
         <p><a href="/juguetes/">← Volver al catalogo</a></p>
@@ -22,7 +109,7 @@
 </body>
 <script>
     async function comprar() {
-        document.getElementById('resultado').innerHTML = '<p>Procesando compra... Esto puede tomar 15 segundos, pero la página NO se bloquea</p>';
+        document.getElementById('resultado').innerHTML = '<p>⏳ Procesando compra...</p>';
         
         const jugueteId = parseInt('{{ juguete.id }}');
         
@@ -39,13 +126,25 @@
         });
         
         const data = await response.json();
-        document.getElementById('resultado').innerHTML = `
-            <div style="background: #4CAF50; color: white; padding: 10px; margin-top: 10px;">
-                LISTO: ${data.mensaje}<br>
-                Tu compra esta siendo procesada en segundo plano.<br>
-                Recibiras confirmacion por email.
-            </div>
-        `;
+        
+        if (data.estado === 'completado') {
+            document.getElementById('resultado').innerHTML = `
+                <div style="background-color: #002b36; border-left: 4px solid #00bfff; padding: 15px; margin-top: 10px; border-radius: 8px; color: #ffffff; white-space: pre-wrap; font-family: monospace; font-size: 14px;">
+                    <strong style="color: #00bfff;">✅ COMPRA CONFIRMADA</strong><br><br>
+                    ${data.mensaje.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </div>
+                <p style="margin-top: 15px;"><a href="/juguetes/" style="color: #00bfff; text-decoration: underline;">← Volver al catálogo</a></p>
+            `;
+            // Recarga la página después de 3 segundos para ver el stock actualizado
+            setTimeout(() => location.reload(), 3000);
+        } else {
+            document.getElementById('resultado').innerHTML = `
+                <div style="background-color: #4b3131; border-left: 4px solid #ff6b6b; padding: 15px; margin-top: 10px; border-radius: 8px; color: #ffffff;">
+                    <strong style="color: #ff6b6b;">❌ ERROR</strong><br>
+                    ${data.mensaje}
+                </div>
+            `;
+        }
     }
 </script>
 </html>

@@ -1,3 +1,4 @@
+import time
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -20,6 +21,38 @@ def detalle_juguete(request, id):
 def crear_juguete(request):
     #Crear nuevo juguete (sincrono)
     if request.method == 'POST':
+        
+        #validamos precio
+        try:
+            precio = float(request.POST.get('precio', 0))
+            if precio < 0:
+                return render(request, 'juguetes/form.html', {
+                    'error': 'El precio no puede ser negativo'
+                }
+                )
+        except ValueError:
+            return render(request, 'juguetes/form.html', {
+                'error': 'El precio debe ser un numero valido'
+            })
+        #validamos stock
+        try:
+            stock = int(request.POST.get('stock', 0))
+            if stock < 0:
+                return render(request, 'juguetes/form.html', {
+                    'error': 'El stock no puede ser negativo'
+                })
+        except ValueError:
+            return render(request, 'juguetes/form.html', {
+                'error': 'El stock debe ser un numero entero valido'
+            })
+        #validamos nombre si ta vacio
+        nombre = request.POST.get('nombre', '').strip()
+        if not nombre:
+            return render(request, 'juguetes/form.html', {
+                'error': 'El nombre del juguete no puede estar vacio'
+            })
+        
+        
         juguete = Juguete.objects.create(
             nombre=request.POST.get('nombre'),
             precio=request.POST.get('precio'),
@@ -73,6 +106,72 @@ def alerta_stock_asinc(request):
         'mensaje': 'Verificando inventario y enviando alertas...',
         'tiempo_estimado': '8 segundos'
     })
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def procesar_compra(request):
+    """Procesa compra de forma SÍNCRONA - actualiza stock inmediatamente"""
+    try:
+        data = json.loads(request.body)
+        juguete_id = data.get('juguete_id')
+        cantidad = int(data.get('cantidad', 1))
+        cliente_email = data.get('cliente_email', 'cliente@ejemplo.com')
+        
+        # Obtén el juguete
+        juguete = get_object_or_404(Juguete, id=juguete_id)
+        
+        # Verifica stock
+        if juguete.stock < cantidad:
+            return JsonResponse({
+                'estado': 'error',
+                'mensaje': f'❌ Stock insuficiente. Disponible: {juguete.stock}, Solicitado: {cantidad}',
+                'producto': juguete.nombre
+            }, status=400)
+        
+        # Actualiza stock INMEDIATAMENTE
+        juguete.stock -= cantidad
+        juguete.save()
+        
+        time.sleep(8)
+        
+        nuevo_stock = juguete.stock
+        total_venta = float(juguete.precio) * cantidad
+        
+        # Crea mensaje de confirmación
+        mensaje_confirmacion = f"""Hola,
+
+Tu compra ha sido procesada exitosamente:
+
+Producto: {juguete.nombre}
+Cantidad: {cantidad} unidades
+Precio Unitario: ${juguete.precio}
+Total: ${total_venta}
+
+Stock restante en tienda: {nuevo_stock} unidades
+
+¡Gracias por tu compra!"""
+        
+        # Log para ver en consola
+        print(f"\n{'='*60}")
+        print(f"✅ VENTA PROCESADA")
+        print(f"{'='*60}")
+        print(mensaje_confirmacion)
+        print(f"{'='*60}\n")
+        
+        return JsonResponse({
+            'estado': 'completado',
+            'producto': juguete.nombre,
+            'cantidad': cantidad,
+            'precio_unitario': float(juguete.precio),
+            'total_venta': total_venta,
+            'stock_anterior': juguete.stock + cantidad,
+            'stock_restante': nuevo_stock,
+            'email_enviado': cliente_email,
+            'mensaje': mensaje_confirmacion
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e), 'estado': 'error'}, status=400)
 
 @csrf_exempt
 @require_http_methods(["POST"])

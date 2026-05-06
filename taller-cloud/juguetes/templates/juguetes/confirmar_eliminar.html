@@ -4,32 +4,128 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Confirmar Eliminación</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d0d0d;
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .card {
+            max-width: 500px;
+            margin: auto;
+            background-color: #111;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(255,0,0,0.2);
+        }
+
+        .card p {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        .card strong {
+            color: #ff6b6b;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        button, a.btn {
+            background-color: #111;
+            color: #00bfff;
+            border: 1px solid #00bfff;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        button:hover, a.btn:hover {
+            background-color: #00bfff;
+            color: #000;
+        }
+
+        button.delete {
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+        }
+
+        button.delete:hover {
+            background-color: #ff6b6b;
+            color: #000;
+        }
+
+        a.cancel {
+            color: #00bfff;
+            border-color: #00bfff;
+        }
+
+        a.cancel:hover {
+            background-color: #00bfff;
+            color: #000;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button, a.btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <h1>Confirmar Eliminación</h1>
-            
-            <p>¿Estás seguro de que deseas eliminar el siguiente juguete?</p>
-            
-            <div style="background-color: #333333; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #f39c12;">
-                <p><strong>Nombre:</strong> {{ juguete.nombre }}</p>
-                <p><strong>Precio:</strong> ${{ juguete.precio }}</p>
-                <p><strong>Stock:</strong> {{ juguete.stock }} unidades</p>
-            </div>
+    <h1>Confirmar Eliminación</h1>
 
-            <p style="color: #e74c3c; font-weight: bold;">⚠️ Esta acción NO se puede deshacer.</p>
+    <div class="card">
+        <p>¿Estás seguro de que deseas eliminar este juguete?</p>
+        
+        <p>
+            <strong>Nombre:</strong> {{ juguete.nombre }}<br>
+            <strong>Precio:</strong> ${{ juguete.precio }}<br>
+            <strong>Stock:</strong> {{ juguete.stock }}
+        </p>
 
-            <form method="post" style="display: flex; gap: 10px; justify-content: center; margin-top: 30px;">
+        <p style="color: #ff6b6b; margin-top: 20px;">⚠️ Esta acción no se puede deshacer.</p>
+
+        <div class="button-group">
+            <form method="POST" style="flex: 1;">
                 {% csrf_token %}
-                
-                <button type="submit" class="danger" style="flex: 1;">🗑️ Sí, Eliminar</button>
-                <a href="/juguetes/{{ juguete.id }}/" style="flex: 1; display: flex; align-items: center; justify-content: center; background-color: var(--color-primary); color: white; text-decoration: none; border-radius: 5px; font-weight: 600;">❌ Cancelar</a>
+                <button type="submit" class="delete" style="width: 100%;">Eliminar</button>
             </form>
-
-            <a href="/juguetes/" class="back-link">← Volver al catálogo</a>
+            <a href="/juguetes/" class="btn cancel">Cancelar</a>
         </div>
     </div>
 </body>

@@ -42,26 +42,68 @@ def enviar_alerta_stock_bajo(minimo_stock=5):
     logger.info(f"Alertas generadas: {resultado}")
     return resultado
 
+
 @shared_task
 def procesar_venta_asinc(juguete_id, cantidad, cliente_email):
     #tarea que procesa una venta de forma asincrona
     #aqui simula facturacion y email
     
     logger.info(f"Procesando venta de {cantidad} unidades del producto {juguete_id}")
-    time.sleep(15) #simula procesamiento de venta y envio de email
+    time.sleep(5) #simula procesamiento de venta y envio de email
     
     #simular actualizaciion de stock
     try:
         juguete = Juguete.objects.get(id=juguete_id)
-        nuevo_stock = juguete.stock - cantidad
-        #en un caso real, aquí se actualizaria el stock
         
-        return {
+        #verifica que hay stock disponible
+        if juguete.stock < cantidad:
+            logger.warning(f"stock insuficiente para {juguete.nombre}")
+            return {
+                'estado': 'error',
+                'mensaje': f'Stock insuficiente. Disponible: {juguete.stock}, Solicitado: {cantidad}',
+                'producto': juguete.nombre
+            }
+        #actualiza el stock
+        juguete.stock -= cantidad
+        juguete.save()
+        
+        nuevo_stock = juguete.stock
+        total_venta = juguete.precio * cantidad
+        #se crea mensaje de confirmacion
+        mensaje = f"""
+Hola,
+Tu compra ha sido procesada exitosamente:
+Producto: {juguete.nombre}
+Cantidad: {cantidad} unidades
+Precio Unitario: ${juguete.precio}
+Total: ${total_venta}
+
+Stock restante en tienda: {nuevo_stock} unidades
+
+Gracias por tu compra!
+"""
+        #envia correo de confirmacion simulado
+        
+        logger.info(f"Enviando email de confirmacion a {cliente_email}...")
+        time.sleep(2) #simula envio de email
+        logger.info("Email enviado exitosamente")
+        resultado = {
             'estado': 'completado',
             'producto': juguete.nombre,
             'cantidad': cantidad,
+            'precio_unitario': float(juguete.precio),
+            'total_venta': float(total_venta),
+            'stock_anterior': juguete.stock + cantidad,
             'stock_restante': nuevo_stock,
-            'email_enviado': cliente_email
+            'email_enviado': cliente_email,
         }
-    except Juguete.DoesNotExist:
-        return {'error': 'Producto no encontrado'}
+        logger.info(f"Venta completada: {resultado}")
+        return resultado
+        
+            
+    except Exception as e:
+        logger.error(f"Error inesperado: {str(e)}")
+        return {
+            'estado': 'error',
+            'mensaje': f'Error al procesar venta: {str(e)}'
+        }
