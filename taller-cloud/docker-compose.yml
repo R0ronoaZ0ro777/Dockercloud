@@ -6,6 +6,11 @@ services:
     networks:
       - app_network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   app:
     build: .
@@ -13,51 +18,39 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-    environment:
-      REDIS_URL: redis://redis:6379/0
-      DB_NAME: postgres
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: db
-      DB_PORT: 5432
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    env_file:
+      - .env
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     networks:
       - app_network
-    command: python manage.py runserver 0.0.0.0:8000
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+            python manage.py collectstatic --noinput &&
+            python manage.py shell -c 'from django.contrib.auth.models import User; User.objects.filter(username=\"admin\").exists() or User.objects.create_superuser(\"admin\", \"admin@example.com\", \"admin123\")' &&
+            gunicorn proyecto.wsgi:application --bind 0.0.0.0:8000 --workers 3"
 
   worker:
     build: .
     volumes:
       - .:/app
-    environment:
-      REDIS_URL: redis://redis:6379/0
-      DB_NAME: postgres
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: db
-      DB_PORT: 5432
+    env_file:
+      - .env
     depends_on:
       - redis
-    networks:
-      - app_network
-    command: celery -A proyecto worker --loglevel=info
-
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - app
     networks:
       - app_network
     restart: unless-stopped
+    command: celery -A proyecto worker --loglevel=info
 
 networks:
   app_network:
-    driver: bridge
 
 volumes:
-  postgres_data:
+  static_volume:
+  media_volume:
